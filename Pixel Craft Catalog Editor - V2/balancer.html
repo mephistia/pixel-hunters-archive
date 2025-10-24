@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>XP Progression Balancer - Pixel Craft</title>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="balancer-styles.css">
+    </head>
+    <body>
+        <div class="container">
+            <!-- Header -->
+            <header>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1>📊 XP Progression Balancer</h1>
+                        <p class="subtitle">Balance and visualize your game's progression curve</p>
+                    </div>
+                    <a href="index.html" class="btn btn-secondary">← Back to Editor</a>
+                </div>
+            </header>
+
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+
+            <!-- Main Content -->
+            <div class="balancer-content">
+                
+                <!-- Curve Parameters -->
+                <section class="panel">
+                    <h2>⚙️ Progression Curve Parameters</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                        Formula: <strong>XP = QuadraticMultiplier × Level² + LinearMultiplier × Level</strong> (Minecraft-style)
+                    </p>
+                    
+                    <div class="params-grid">
+                        <div class="param-item">
+                            <label for="quadraticMultiplierInput">
+                                Quadratic Multiplier
+                                <span class="info-tooltip" title="Multiplier for Level². Controls exponential growth.">ℹ</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="number" id="quadraticMultiplierInput" min="1" max="100" step="1" value="5">
+                                <span class="input-value" id="quadraticMultiplierValue">5</span>
+                            </div>
+                            <small>Range: 1-100 (default: 5)</small>
+                        </div>
+
+                        <div class="param-item">
+                            <label for="linearMultiplierInput">
+                                Linear Multiplier
+                                <span class="info-tooltip" title="Multiplier for Level. Adds base linear growth.">ℹ</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="number" id="linearMultiplierInput" min="0" max="500" step="10" value="50">
+                                <span class="input-value" id="linearMultiplierValue">50</span>
+                            </div>
+                            <small>Range: 0-500 (default: 50)</small>
+                        </div>
+
+                        <div class="param-item">
+                            <label for="maxLevelInput">
+                                Max Level
+                                <span class="info-tooltip" title="Maximum level cap for players.">ℹ</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="number" id="maxLevelInput" min="10" max="1000" step="10" value="100">
+                                <span class="input-value" id="maxLevelValue">100</span>
+                            </div>
+                            <small>Range: 10-1000 (default: 100)</small>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="calculateBtn" class="btn btn-primary">🔄 Calculate</button>
+                        <button id="resetBtn" class="btn btn-secondary">↺ Reset Defaults</button>
+                        
+                        <label for="importFileInput" class="btn btn-secondary" style="cursor: pointer; margin: 0;">
+                            📥 Import from Verse
+                        </label>
+                        <input type="file" id="importFileInput" accept=".verse,.txt" style="display: none;">
+                        
+                        <button id="exportBtn" class="btn btn-success">📤 Export to Verse</button>
+                    </div>
+                </section>
+
+                <!-- Stats Bar -->
+                <section class="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-label">Max Level XP</div>
+                        <div class="stat-value" id="statMaxLevelXp">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Avg XP/Level</div>
+                        <div class="stat-value" id="statAvgXpPerLevel">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Items with XP</div>
+                        <div class="stat-value" id="statItemsWithXp">0/0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Avg XP Reward</div>
+                        <div class="stat-value" id="statAvgXpReward">0</div>
+                    </div>
+                </section>
+
+                <!-- Level Breakdown Table -->
+                <section class="panel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>📊 Level Breakdown</h2>
+                        <button id="exportCsvBtn" class="btn btn-secondary btn-small">📥 Export CSV</button>
+                    </div>
+
+                    <div class="range-selector">
+                        <button class="range-btn active" data-range="1-20">1-20</button>
+                        <button class="range-btn" data-range="21-40">21-40</button>
+                        <button class="range-btn" data-range="41-60">41-60</button>
+                        <button class="range-btn" data-range="61-80">61-80</button>
+                        <button class="range-btn" data-range="81-100">81-100</button>
+                        <button class="range-btn" data-range="all">Show All</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="level-table">
+                            <thead>
+                                <tr>
+                                    <th>Level</th>
+                                    <th>Total XP</th>
+                                    <th>Difference</th>
+                                </tr>
+                            </thead>
+                            <tbody id="levelTableBody">
+                                <!-- Generated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Item XP Analysis -->
+                <section class="panel">
+                    <h2>🎯 Item XP Analysis</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                        Analysis of Equipment items grouped by Required Level to Craft
+                    </p>
+                    <div id="itemAnalysisContainer">
+                        <!-- Generated by JS -->
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Footer -->
+            <footer style="margin-top: 40px; padding: 20px; text-align: center; color: var(--text-secondary); border-top: 1px solid var(--border-color);">
+                <p>Pixel Craft XP Progression Balancer | Synced with localStorage</p>
+                <p style="font-size: 0.9em; margin-top: 5px;">
+                    Data shared with main editor | Changes auto-saved
+                </p>
+            </footer>
+        </div>
+
+        <!-- Scripts -->
+        <script src="utils.js"></script>
+        <script src="progression.js"></script>
+    </body>
+</html>

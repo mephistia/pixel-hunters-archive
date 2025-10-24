@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Craft Catalog Editor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🎮 Pixel Craft Catalog Editor</h1>
+            <p class="subtitle">Visual database editor for UEFN Pixel Craft game system</p>
+            
+            <!-- Freshness Indicator -->
+            <div id="freshnessIndicator" class="freshness-indicator">
+                <span id="freshnessIcon">📝</span>
+                <span id="freshnessText">No data loaded</span>
+            </div>
+        </header>
+
+        <!-- Alert Container -->
+        <div id="alertContainer"></div>
+
+        <!-- Global Actions Toolbar -->
+        <div class="toolbar">
+            <button id="exportAllBtn" class="btn btn-success">📤 Export All to Verse</button>
+            <button id="clearStorageBtn" class="btn btn-danger">🗑️ Clear Storage</button>
+            <button id="changeUsernameBtn" class="btn btn-secondary">👤 Change Username</button>
+            <a href="balancer.html" class="btn btn-primary">📊 XP Balancer</a> <!-- NOVO -->
+            
+            <div style="flex: 1;"></div>
+            
+            <div id="storageInfo" class="storage-info">
+                <span id="storageSize">0 KB</span>
+            </div>
+        </div>
+
+        <!-- Statistics Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-label">Total Items</div>
+                <div class="stat-value" id="itemsTotal">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Breakables</div>
+                <div class="stat-value" id="breakablesTotal">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Total Recipes</div>
+                <div class="stat-value" id="recipesTotal">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Workstations</div>
+                <div class="stat-value" id="workstationsTotal">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Makeshift Recipes</div>
+                <div class="stat-value" id="makeshiftTotal">0</div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab" data-tab="itemsTab">📦 Items</button>
+            <button class="tab" data-tab="breakablesTab">⛏️ Breakables</button>
+            <button class="tab" data-tab="recipesTab">🔨 Recipes</button>
+            <button class="tab" data-tab="workstationsTab">⚙️ Workstations</button>
+            <button class="tab" data-tab="makeshiftTab">✋ Makeshift</button>
+        </div>
+
+        <!-- ITEMS TAB -->
+        <div id="itemsTab" class="tab-content">
+            <div class="toolbar">
+                <label for="itemsFileInput" class="file-label">📁 Import Catalog</label>
+                <input type="file" id="itemsFileInput" accept=".verse,.json">
+                
+                <button id="addItemBtn" class="btn btn-primary">➕ New Item</button>
+                <button id="validateItemsBtn" class="btn btn-warning">✓ Validate</button>
+                
+                <div class="search-box">
+                    <input type="text" id="itemsSearchInput" placeholder="🔍 Search items...">
+                </div>
+            </div>
+
+            <!-- Items Stats -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-label">Equipment</div>
+                    <div class="stat-value" id="itemsEquipment">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Resources</div>
+                    <div class="stat-value" id="itemsResource">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Consumables</div>
+                    <div class="stat-value" id="itemsConsumable">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Placeables</div>
+                    <div class="stat-value" id="itemsPlaceable">0</div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="item-list" id="itemsList">
+                    <div class="empty-state">
+                        <h3>No items loaded</h3>
+                        <p>Import ItemsCatalog.verse or create a new item</p>
+                    </div>
+                </div>
+                <div class="editor-panel" id="itemsEditor">
+                    <div class="empty-state">
+                        <h3>Select an item to edit</h3>
+                        <p>Or create a new one</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BREAKABLES TAB -->
+        <div id="breakablesTab" class="tab-content">
+            <div class="toolbar">
+                <label for="breakablesFileInput" class="file-label">📁 Import Catalog</label>
+                <input type="file" id="breakablesFileInput" accept=".verse,.json">
+                
+                <button id="addBreakableBtn" class="btn btn-primary">➕ New Resource</button>
+                <button id="validateBreakablesBtn" class="btn btn-warning">✓ Validate</button>
+                
+                <div class="search-box">
+                    <input type="text" id="breakablesSearchInput" placeholder="🔍 Search breakables...">
+                </div>
+            </div>
+
+            <!-- Breakables Stats -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-label">With Drops</div>
+                    <div class="stat-value" id="breakablesWithDrops">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Avg Drops</div>
+                    <div class="stat-value" id="breakablesAvgDrops">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Avg Hardness</div>
+                    <div class="stat-value" id="breakablesAvgHardness">0</div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="item-list" id="breakablesList">
+                    <div class="empty-state">
+                        <h3>No breakables loaded</h3>
+                        <p>Import BreakablesCatalog.verse or create a new resource</p>
+                    </div>
+                </div>
+                <div class="editor-panel" id="breakablesEditor">
+                    <div class="empty-state">
+                        <h3>Select a breakable to edit</h3>
+                        <p>Or create a new one</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECIPES TAB -->
+        <div id="recipesTab" class="tab-content">
+            <div class="toolbar">
+                <label for="recipesFileInput" class="file-label">📁 Import Catalog</label>
+                <input type="file" id="recipesFileInput" accept=".verse,.json">
+                
+                <button id="addRecipeBtn" class="btn btn-primary">➕ New Recipe</button>
+                <button id="validateRecipesBtn" class="btn btn-warning">✓ Validate</button>
+                
+                <div class="search-box">
+                    <input type="text" id="recipesSearchInput" placeholder="🔍 Search recipes...">
+                </div>
+            </div>
+
+            <!-- Recipes Stats -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-label">Avg Materials</div>
+                    <div class="stat-value" id="recipesAvgMaterials">0</div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="item-list" id="recipesList">
+                    <div class="empty-state">
+                        <h3>No recipes loaded</h3>
+                        <p>Import RecipesCatalog.verse or create a new recipe</p>
+                    </div>
+                </div>
+                <div class="editor-panel" id="recipesEditor">
+                    <div class="empty-state">
+                        <h3>Select a recipe to edit</h3>
+                        <p>Or create a new one</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WORKSTATIONS TAB -->
+        <div id="workstationsTab" class="tab-content">
+            <div class="toolbar">
+                <label for="workstationsFileInput" class="file-label">📁 Import Catalog</label>
+                <input type="file" id="workstationsFileInput" accept=".verse,.json">
+                
+                <button id="addWorkstationBtn" class="btn btn-primary">➕ New Workstation</button>
+                <button id="validateWorkstationsBtn" class="btn btn-warning">✓ Validate</button>
+                
+                <div class="search-box">
+                    <input type="text" id="workstationsSearchInput" placeholder="🔍 Search workstations...">
+                </div>
+            </div>
+
+            <!-- Workstations Stats -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-label">With Upgrades</div>
+                    <div class="stat-value" id="workstationsWithUpgrades">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total Recipes</div>
+                    <div class="stat-value" id="workstationsTotalRecipes">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Avg Upgrades</div>
+                    <div class="stat-value" id="workstationsAvgUpgrades">0</div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="item-list" id="workstationsList">
+                    <div class="empty-state">
+                        <h3>No workstations loaded</h3>
+                        <p>Import WorkstationsCatalog.verse or create a new workstation</p>
+                    </div>
+                </div>
+                <div class="editor-panel" id="workstationsEditor">
+                    <div class="empty-state">
+                        <h3>Select a workstation to edit</h3>
+                        <p>Or create a new one</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAKESHIFT TAB -->
+        <div id="makeshiftTab" class="tab-content">
+            <div class="toolbar">
+                <label for="makeshiftFileInput" class="file-label">📁 Import Config</label>
+                <input type="file" id="makeshiftFileInput" accept=".verse,.json">
+                
+                <button id="saveMakeshiftBtn" class="btn btn-success">💾 Export Makeshift</button>
+                <button id="validateMakeshiftBtn" class="btn btn-warning">✓ Validate</button>
+            </div>
+
+            <div class="editor-panel" id="makeshiftEditor" style="max-height: none;">
+                <div class="empty-state">
+                    <h3>No makeshift config loaded</h3>
+                    <p>Import MakeshiftConfig.verse first</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer style="margin-top: 40px; padding: 20px; text-align: center; color: var(--text-secondary); border-top: 1px solid var(--border-color);">
+            <p>Pixel Craft Catalog Editor v2.0 | UEFN Database Manager</p>
+            <p style="font-size: 0.9em; margin-top: 5px;">
+                Auto-saves every 30s to localStorage | 
+                <span id="lastSaveTime">Never saved</span>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Scripts - Load in correct order without ES6 modules -->
+    <script src="constants.js"></script>
+    <script src="state.js"></script>
+    <script src="verse-parser.js"></script>
+    <script src="utils.js"></script>
+    <script src="export.js"></script>
+    <script src="items.js"></script>
+    <script src="recipes.js"></script>
+    <script src="breakables.js"></script>
+    <script src="workstations.js"></script>
+    <script src="makeshift.js"></script>
+    <script src="app.js"></script>
+    
+</body>
+</html>
