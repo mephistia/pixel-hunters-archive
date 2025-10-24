@@ -43,10 +43,7 @@ header {
 h1 {
     font-size: 2.8em;
     margin-bottom: 10px;
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--accent-purple);
 }
 
 h2 {
