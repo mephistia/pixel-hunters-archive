@@ -9,9 +9,17 @@ const Progression = {
     },  
 
     init() {
+        console.log('🚀 Progression Balancer initializing...');
+        
+        // Debug localStorage
+        console.log('📦 localStorage keys:', Object.keys(localStorage));
+        console.log('📦 items in storage:', localStorage.getItem('items') ? 'YES' : 'NO');
+        
         this.loadConfig();
         this.setupEventListeners();
         this.calculate();
+        
+        console.log('✓ Progression Balancer initialized');
     },
 
     loadConfig() {
@@ -59,6 +67,35 @@ const Progression = {
 
         document.getElementById('exportCsvBtn').addEventListener('click', () => {
             this.exportToCSV();
+        });
+
+        // Debug localStorage button
+        document.getElementById('debugStorageBtn').addEventListener('click', () => {
+            const keys = Object.keys(localStorage);
+            const itemsData = localStorage.getItem('items');
+            
+            let debugInfo = `🔍 localStorage Debug:\n\n`;
+            debugInfo += `Total keys: ${keys.length}\n`;
+            debugInfo += `Keys: ${keys.join(', ')}\n\n`;
+            
+            if (itemsData) {
+                try {
+                    const items = JSON.parse(itemsData);
+                    debugInfo += `✓ Items found: ${items.length}\n`;
+                    debugInfo += `Equipment: ${items.filter(i => i.type === 'Equipment').length}\n`;
+                } catch (e) {
+                    debugInfo += `❌ Error parsing items: ${e.message}\n`;
+                }
+            } else {
+                debugInfo += `❌ No items in localStorage\n`;
+                debugInfo += `\nPossible causes:\n`;
+                debugInfo += `1. Items not saved in main editor\n`;
+                debugInfo += `2. Different browser/incognito mode\n`;
+                debugInfo += `3. localStorage cleared\n`;
+            }
+            
+            alert(debugInfo);
+            console.log(debugInfo);
         });
 
         // Import file listener
@@ -195,15 +232,16 @@ const Progression = {
         const maxLevelXp = this.getTotalExpForLevel(this.config.max_level);
         const avgXpPerLevel = Math.round(maxLevelXp / this.config.max_level);
 
-        // Load items from state (shared with main editor)
-        const itemsData = localStorage.getItem('items');
+        // Load items from localStorage (shared with main editor)
         let items = [];
-        if (itemsData) {
-            try {
+        
+        try {
+            const itemsData = localStorage.getItem('items');
+            if (itemsData) {
                 items = JSON.parse(itemsData);
-            } catch (e) {
-                console.warn('Failed to load items');
             }
+        } catch (e) {
+            console.warn('Failed to load items from localStorage:', e);
         }
 
         const equipmentItems = items.filter(item => item.type === 'Equipment');
