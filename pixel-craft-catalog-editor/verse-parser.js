@@ -204,11 +204,15 @@ const VerseParser = {
 
     parseBreakablesCatalog(verseCode) {
         const breakables = [];
+
+        // Match the AllBreakables array
         const arrayMatch = verseCode.match(/AllBreakables<public>\s*:\s*\[\]breakable_resource_def\s*=\s*array\s*\{([\s\S]*?)\}\s*\n?/m);
         if (!arrayMatch) {
             throw new Error('Could not find AllBreakables array in Verse file');
         }
+
         const arrayContent = arrayMatch[1].trim();
+
         // Split by }, breakable_resource_def{ and re-add header/tail for each block
         const brBlocks = arrayContent.split(/},\s*breakable_resource_def\s*\{/g).map((block, idx, arr) => {
             if (arr.length === 1) return block; // only one entry, already correct
@@ -216,7 +220,9 @@ const VerseParser = {
             if (idx === arr.length - 1) return 'breakable_resource_def{' + block;
             return 'breakable_resource_def{' + block + '}';
         });
+
         brBlocks.forEach(block => {
+            // Guarantee block starts at breakable_resource_def{ for parseBreakableBlock
             let cleanBlock = block.trim();
             if (!cleanBlock.startsWith('breakable_resource_def{')) {
                 cleanBlock = 'breakable_resource_def{' + cleanBlock;
@@ -224,6 +230,7 @@ const VerseParser = {
             const br = this.parseBreakableBlock(cleanBlock);
             if (br) breakables.push(br);
         });
+
         console.log(`✓ Parsed ${breakables.length} breakables (array split)`);
         return breakables;
     },
