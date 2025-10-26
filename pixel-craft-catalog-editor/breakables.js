@@ -361,7 +361,7 @@ const Breakables = {
         });
 
         if (allErrors.length === 0) {
-            Utils.showAlert('success', 'Todos os breakable resources são válidos! ✓');
+            Utils.showAlert('success', 'All breakable resources are valid! ✓');
         } else {
             Utils.showAlert('error', `Encontrados ${allErrors.length} breakable resources com erros`);
             console.log('Validation errors:', allErrors);

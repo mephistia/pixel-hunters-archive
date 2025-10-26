@@ -67,13 +67,17 @@ const State = {
                 recipes: state.recipes,
                 workstations: state.workstations,
                 makeshift: state.makeshift,
-                breakables: state.breakables,
+                breakables: state.breakables, // ✓ Salva junto com tudo
                 metadata: state.metadata,
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+            
             localStorage.setItem('items', JSON.stringify(state.items));
+            
             console.log('✓ State saved to localStorage');
+            console.log('  - Items:', state.items.length);
+            console.log('  - Breakables:', state.breakables.length);
         } catch (e) {
             console.error('❌ Failed to save state:', e);
         }
@@ -88,7 +92,7 @@ const State = {
             state.recipes = data.recipes || [];
             state.workstations = data.workstations || [];
             state.makeshift = data.makeshift || { available_recipes: [] };
-            state.breakables = data.breakables || [];
+            state.breakables = data.breakables || []; // ✓ Carrega junto com tudo
             state.metadata = data.metadata || state.metadata;
             return true;
         } catch (e) {

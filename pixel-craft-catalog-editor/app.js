@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
             Recipes.renderList();
             Workstations.renderList();
             Makeshift.renderEditor();
+            Breakables.renderList();
             console.log('  ✓ Todas as listas renderizadas');
         } catch (error) {
             console.error('❌ Falha ao renderizar listas:', error);
@@ -230,25 +231,28 @@ function showExportModal() {
     
     const summary = {
         items: state.items.length,
+        breakables: state.breakables.length, // ✅ ADICIONAR
         recipes: state.recipes.length,
         workstations: state.workstations.length,
         makeshifts: state.makeshift.available_recipes.length,
         lastImport: state.metadata.importedAt ? new Date(state.metadata.importedAt).toLocaleString('pt-BR') : 'Nunca'
     };
-    
+
     console.log('  Resumo:', summary);
-    
+
     const msg = `📋 Resumo da Exportação
 
 Items: ${summary.items}
+Breakables: ${summary.breakables}
 Receitas: ${summary.recipes}
 Estações de Trabalho: ${summary.workstations}
 Receitas Makeshift: ${summary.makeshifts}
 
 Última Importação: ${summary.lastImport}
 
-Isso irá gerar 4 arquivos de módulo Verse:
+Isso irá gerar 5 arquivos de módulo Verse:
 - items_catalog.verse
+- breakable_resources_catalog.verse
 - recipes_catalog.verse
 - workstations_catalog.verse
 - makeshift_config.verse
@@ -296,6 +300,7 @@ function handleClearStorage() {
 
 Isso irá deletar TODOS os dados salvos:
 - Items: ${storageInfo.items}
+- Breakables: ${storageInfo.breakables}
 - Receitas: ${storageInfo.recipes}
 - Estações de Trabalho: ${storageInfo.workstations}
 - Receitas Makeshift: ${storageInfo.makeshiftRecipes}

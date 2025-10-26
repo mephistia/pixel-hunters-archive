@@ -84,7 +84,6 @@ const CONSTANTS = {
         breakables: 'breakable_resources_catalog.verse' 
     },
     
-    // Verse module imports (simplified - only module names)
     VERSE_IMPORTS: {
         items: [
             'ItemSystem.ItemData',
@@ -99,6 +98,10 @@ const CONSTANTS = {
         ],
         makeshift: [
             'ItemSystem.RecipeInterfaces'
+        ],
+        breakables: [
+            'ItemSystem.BreakableData',
+            'ItemSystem.DropsConfig'
         ]
     },
     

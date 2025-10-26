@@ -204,40 +204,24 @@ const VerseParser = {
 
     parseBreakablesCatalog(verseCode) {
         const breakables = [];
-        const arrayMatch = verseCode.match(/AllBreakables<public>\s*:\s*\[\]breakable_resource_def\s*=\s*array\s*\{([\s\S]*?)\}\s*\n?/m);
+        
+        // FIX: Remover *? (non-greedy) para capturar TODO o array
+        const arrayMatch = verseCode.match(/AllBreakables<public>\s*:\s*\[\]breakable_resource_def\s*=\s*array\s*\{([\s\S]*)\}/m);
         if (!arrayMatch) {
             throw new Error('Could not find AllBreakables array in Verse file');
         }
+
         const arrayContent = arrayMatch[1];
-        let idx = 0;
-        while (idx < arrayContent.length) {
-            const start = arrayContent.indexOf('breakable_resource_def{', idx);
-            if (start === -1) break;
-            let braceCount = 0;
-            let end = start;
-            let foundStart = false;
-            for (; end < arrayContent.length; end++) {
-                if (arrayContent[end] === '{') {
-                    braceCount++;
-                    foundStart = true;
-                }
-                if (arrayContent[end] === '}') {
-                    braceCount--;
-                    if (foundStart && braceCount === 0) {
-                        break;
-                    }
-                }
-            }
-            if (start !== -1 && end !== -1 && foundStart) {
-                const block = arrayContent.slice(start, end + 1);
-                const br = this.parseBreakableBlock(block);
-                if (br) breakables.push(br);
-                idx = end + 1;
-            } else {
-                break; // No more blocks found
-            }
-        }
-        console.log(`✓ Parsed ${breakables.length} breakables (brace count robust)`);
+        
+        // FIX: Usar a mesma estratégia que funciona para items, recipes, etc.
+        const breakableBlocks = this.splitByDefinitions(arrayContent, ['breakable_resource_def']);
+        
+        breakableBlocks.forEach(block => {
+            const br = this.parseBreakableBlock(block);
+            if (br) breakables.push(br);
+        });
+
+        console.log(`✓ Parsed ${breakables.length} breakables`);
         return breakables;
     },
 
@@ -258,11 +242,15 @@ const VerseParser = {
         if (!match) return drops;
 
         const arrayContent = match[1];
+        
         // Split into drop_entry blocks
         const dropBlocks = this.splitByDefinitions(arrayContent, ['drop_entry']);
         dropBlocks.forEach(db => {
-            const item_id = this.extractStringField(db, 'ItemID') || this.extractStringField(db, 'ItemId') || this.extractStringField(db, 'Item');
-            const weight = this.extractIntField(db, 'Weight');
+        // Tentar múltiplas variações de nomes de campo
+        const item_id = this.extractStringField(db, 'ItemID') || 
+                        this.extractStringField(db, 'ItemId') || 
+                        this.extractStringField(db, 'Item_Id') || 
+                        this.extractStringField(db, 'ItemDefId');            const weight = this.extractIntField(db, 'Weight');
             const min_amount = this.extractIntField(db, 'MinAmount');
             const max_amount = this.extractIntField(db, 'MaxAmount');
 
