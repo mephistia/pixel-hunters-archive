@@ -62,11 +62,17 @@ const State = {
 
     save() {
         try {
-            localStorage.setItem('items', JSON.stringify(this.items));
-            localStorage.setItem('recipes', JSON.stringify(this.recipes));
-            localStorage.setItem('breakables', JSON.stringify(this.breakables));
-            localStorage.setItem('workstations', JSON.stringify(this.workstations));
-            localStorage.setItem('makeshift', JSON.stringify(this.makeshift));
+            const dataToSave = {
+                items: state.items,
+                recipes: state.recipes,
+                workstations: state.workstations,
+                makeshift: state.makeshift,
+                breakables: state.breakables,
+                metadata: state.metadata,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+            localStorage.setItem('items', JSON.stringify(state.items));
             console.log('✓ State saved to localStorage');
         } catch (e) {
             console.error('❌ Failed to save state:', e);
@@ -75,25 +81,19 @@ const State = {
 
     load() {
         try {
-            const items = localStorage.getItem('items');
-            const recipes = localStorage.getItem('recipes');
-            const breakables = localStorage.getItem('breakables');
-            const workstations = localStorage.getItem('workstations');
-            const makeshift = localStorage.getItem('makeshift');
-
-            if (items) this.items = JSON.parse(items);
-            if (recipes) this.recipes = JSON.parse(recipes);
-            if (breakables) this.breakables = JSON.parse(breakables);
-            if (workstations) this.workstations = JSON.parse(workstations);
-            if (makeshift) this.makeshift = JSON.parse(makeshift);
-
-            console.log('✓ State loaded from localStorage');
-            console.log('  Items:', this.items.length);
-            console.log('  Recipes:', this.recipes.length);
-            console.log('  Breakables:', this.breakables.length);
-            console.log('  Workstations:', this.workstations.length);
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (!savedData) return false;
+            const data = JSON.parse(savedData);
+            state.items = data.items || [];
+            state.recipes = data.recipes || [];
+            state.workstations = data.workstations || [];
+            state.makeshift = data.makeshift || { available_recipes: [] };
+            state.breakables = data.breakables || [];
+            state.metadata = data.metadata || state.metadata;
+            return true;
         } catch (e) {
             console.error('❌ Failed to load state:', e);
+            return false;
         }
     },
 
