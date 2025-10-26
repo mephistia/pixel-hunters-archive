@@ -15,6 +15,8 @@ const VerseParser = {
             return this.parseWorkstationsCatalog(verseCode);
         } else if (filename.toLowerCase().includes('makeshift') || verseCode.includes('MakeshiftConfig')) {
             return this.parseMakeshiftConfig(verseCode);
+        } else if (filename.toLowerCase().includes('breakable') || verseCode.includes('BreakableResourcesCatalog') || verseCode.includes('BreakablesCatalog')) {
+            return this.parseBreakablesCatalog(verseCode);
         } else {
             throw new Error('Unable to detect catalog type from file');
         }
@@ -200,6 +202,77 @@ const VerseParser = {
         return ws;
     },
 
+    parseBreakablesCatalog(verseCode) {
+        const breakables = [];
+
+        // Match the AllBreakables array
+        const arrayMatch = verseCode.match(/AllBreakables<public>\s*:\s*\[\]breakable_resource_def\s*=\s*array\s*\{([\s\S]*?)\}\s*\n?/m);
+        if (!arrayMatch) {
+            throw new Error('Could not find AllBreakables array in Verse file');
+        }
+
+        const arrayContent = arrayMatch[1].trim();
+
+        // Split by }, breakable_resource_def{ and re-add header/tail for each block
+        const brBlocks = arrayContent.split(/},\s*breakable_resource_def\s*\{/g).map((block, idx, arr) => {
+            if (arr.length === 1) return block; // only one entry, already correct
+            if (idx === 0) return block + '}';
+            if (idx === arr.length - 1) return 'breakable_resource_def{' + block;
+            return 'breakable_resource_def{' + block + '}';
+        });
+
+        brBlocks.forEach(block => {
+            // Guarantee block starts at breakable_resource_def{ for parseBreakableBlock
+            let cleanBlock = block.trim();
+            if (!cleanBlock.startsWith('breakable_resource_def{')) {
+                cleanBlock = 'breakable_resource_def{' + cleanBlock;
+            }
+            const br = this.parseBreakableBlock(cleanBlock);
+            if (br) breakables.push(br);
+        });
+
+        console.log(`✓ Parsed ${breakables.length} breakables (array split)`);
+        return breakables;
+    },
+
+    parseBreakableBlock(block) {
+        const br = {};
+        br.id = this.extractStringField(block, 'Id');
+        br.hardness = this.extractFloatField(block, 'Hardness');
+        br.regen_seconds = this.extractFloatField(block, 'RegenSeconds');
+        br.drop_table = this.extractDropTable(block);
+        return br;
+    },
+
+    // Helper to extract DropTable -> array of drop entries
+    extractDropTable(block) {
+        const drops = [];
+        const regex = /DropTable\s*:=\s*array\s*\{([\s\S]*?)\}/i;
+        const match = block.match(regex);
+        if (!match) return drops;
+
+        const arrayContent = match[1];
+        // Split into drop_entry blocks
+        const dropBlocks = this.splitByDefinitions(arrayContent, ['drop_entry']);
+        dropBlocks.forEach(db => {
+            const item_id = this.extractStringField(db, 'ItemID') || this.extractStringField(db, 'ItemId') || this.extractStringField(db, 'Item');
+            const weight = this.extractIntField(db, 'Weight');
+            const min_amount = this.extractIntField(db, 'MinAmount');
+            const max_amount = this.extractIntField(db, 'MaxAmount');
+
+            if (item_id) {
+                drops.push({
+                    item_id,
+                    weight,
+                    min_amount,
+                    max_amount
+                });
+            }
+        });
+
+        return drops;
+    },
+
     // Parse Makeshift Config
     parseMakeshiftConfig(verseCode) {
         const arrayMatch = verseCode.match(/MakeshiftRecipes<public>\s*:\s*\[\]string\s*=\s*array\s*\{([\s\S]*?)\}/m);
@@ -216,7 +289,7 @@ const VerseParser = {
 
     // Helper: Extract string field
     extractStringField(block, fieldName) {
-        const regex = new RegExp(`${fieldName}\\s*:=\\s*"([^"]*)"`, 'i');
+        const regex = new RegExp(`${fieldName}\\s*:=\\s*\"([^"]*)\"`, 'i');
         const match = block.match(regex);
         return match ? this.unescapeString(match[1]) : '';
     },

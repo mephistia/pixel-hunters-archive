@@ -451,6 +451,8 @@ function generateBreakablesCatalog() {
 using { /Verse.org/Simulation }
 using { /UnrealEngine.com/Temporary/Diagnostics }
 using { ItemSystem.BreakableData }
+using { ItemSystem.DropsConfig }
+
 
 BreakableResourcesCatalog<public> := module{
     AllBreakables<public> : []breakable_resource_def = array{

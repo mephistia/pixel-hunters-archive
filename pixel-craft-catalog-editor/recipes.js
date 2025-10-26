@@ -206,6 +206,7 @@ const Recipes = {
         
         if (!recipe.materials) recipe.materials = [];
         recipe.materials.push({ item_id: '', amount: 1 });
+        State.save();
         this.renderEditor();
     },
 
@@ -215,6 +216,7 @@ const Recipes = {
         this.saveCurrentFieldValues();
         
         recipe.materials.splice(index, 1);
+        State.save();
         this.renderEditor();
     },
 
@@ -279,6 +281,7 @@ const Recipes = {
         this.renderList();
         this.renderEditor();
         this.updateStats();
+        State.save();
         Utils.showAlert('success', 'Recipe duplicated');
     },
 

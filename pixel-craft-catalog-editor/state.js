@@ -60,96 +60,40 @@ const State = {
         return state.breakables.find(br => br.id === id);
     },
 
-    // Save to Local Storage
     save() {
         try {
-            const dataToSave = {
-                items: state.items,
-                recipes: state.recipes,
-                workstations: state.workstations,
-                breakables: state.breakables,
-                makeshift: state.makeshift,
-                metadata: state.metadata,
-                timestamp: new Date().toISOString()
-            };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-            console.log('✓ Dados salvos no Local Storage');
-            
-            // Update last save time display
-            const lastSaveDisplay = document.getElementById('lastSaveTime');
-            if (lastSaveDisplay) {
-                const now = new Date();
-                lastSaveDisplay.textContent = `Último salvamento: ${now.toLocaleTimeString('pt-BR')}`;
-            }
-            
-            // Update storage size display
-            this.updateStorageInfo();
-            
-            return true;
-        } catch (error) {
-            console.error('Falha ao salvar no Local Storage:', error);
-            if (window.Utils) {
-                Utils.showAlert('error', 'Falha ao salvar dados localmente: ' + error.message);
-            }
-            return false;
+            localStorage.setItem('items', JSON.stringify(this.items));
+            localStorage.setItem('recipes', JSON.stringify(this.recipes));
+            localStorage.setItem('breakables', JSON.stringify(this.breakables));
+            localStorage.setItem('workstations', JSON.stringify(this.workstations));
+            localStorage.setItem('makeshift', JSON.stringify(this.makeshift));
+            console.log('✓ State saved to localStorage');
+        } catch (e) {
+            console.error('❌ Failed to save state:', e);
         }
     },
 
-    // Load from Local Storage
     load() {
         try {
-            const savedData = localStorage.getItem(STORAGE_KEY);
-            if (!savedData) {
-                console.log('Nenhum dado salvo encontrado no Local Storage');
-                
-                // Initialize username from system or prompt
-                state.metadata.username = this.getUsername();
-                
-                return false;
-            }
+            const items = localStorage.getItem('items');
+            const recipes = localStorage.getItem('recipes');
+            const breakables = localStorage.getItem('breakables');
+            const workstations = localStorage.getItem('workstations');
+            const makeshift = localStorage.getItem('makeshift');
 
-            const data = JSON.parse(savedData);
-            state.items = data.items || [];
-            state.recipes = data.recipes || [];
-            state.workstations = data.workstations || [];
-            state.makeshift = data.makeshift || { available_recipes: [] };
-            state.breakables = data.breakables || [];
-            state.metadata = data.metadata || {
-                username: this.getUsername(),
-                importedAt: null,
-                importedBy: null,
-                exportedAt: null,
-                exportedBy: null,
-                importedHash: null
-            };
+            if (items) this.items = JSON.parse(items);
+            if (recipes) this.recipes = JSON.parse(recipes);
+            if (breakables) this.breakables = JSON.parse(breakables);
+            if (workstations) this.workstations = JSON.parse(workstations);
+            if (makeshift) this.makeshift = JSON.parse(makeshift);
 
-            // Ensure username is set
-            if (!state.metadata.username || state.metadata.username === 'unknown') {
-                state.metadata.username = this.getUsername();
-            }
-
-            console.log('✓ Dados carregados do Local Storage');
-            console.log(`  - Items: ${state.items.length}`);
-            console.log(`  - Receitas: ${state.recipes.length}`);
-            console.log(`  - Estações: ${state.workstations.length}`);
-            console.log(`  - Makeshift: ${state.makeshift.available_recipes.length}`);
-            console.log(`  - Último salvamento: ${data.timestamp}`);
-            console.log(`  - Usuário: ${state.metadata.username}`);
-
-            // Update storage info display
-            this.updateStorageInfo();
-
-            return true;
-        } catch (error) {
-            console.error('Falha ao carregar do Local Storage:', error);
-            if (window.Utils) {
-                Utils.showAlert('error', 'Falha ao carregar dados salvos: ' + error.message);
-            }
-            
-            // Initialize username even if load fails
-            state.metadata.username = this.getUsername();
-            
-            return false;
+            console.log('✓ State loaded from localStorage');
+            console.log('  Items:', this.items.length);
+            console.log('  Recipes:', this.recipes.length);
+            console.log('  Breakables:', this.breakables.length);
+            console.log('  Workstations:', this.workstations.length);
+        } catch (e) {
+            console.error('❌ Failed to load state:', e);
         }
     },
 
@@ -203,6 +147,7 @@ const State = {
                 recipes: data.recipes?.length || 0,
                 workstations: data.workstations?.length || 0,
                 makeshiftRecipes: data.makeshift?.available_recipes?.length || 0,
+                breakables: data.breakables?.length || 0,
                 timestamp: data.timestamp,
                 sizeKB: (new Blob([savedData]).size / 1024).toFixed(2),
                 username: data.metadata?.username || 'unknown',

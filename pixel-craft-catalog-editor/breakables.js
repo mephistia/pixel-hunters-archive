@@ -225,7 +225,7 @@ const Breakables = {
             min_amount: 1,
             max_amount: 1
         });
-        
+        State.save();
         this.renderEditor();
     },
 
@@ -235,6 +235,7 @@ const Breakables = {
         this.saveCurrentFieldValues();
         
         br.drop_table.splice(index, 1);
+        State.save();
         this.renderEditor();
     },
 
@@ -298,6 +299,7 @@ const Breakables = {
         this.renderList();
         this.renderEditor();
         this.updateStats();
+        State.save();
         Utils.showAlert('success', 'Breakable resource duplicated');
     },
 

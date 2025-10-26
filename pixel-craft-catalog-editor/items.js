@@ -338,6 +338,7 @@ const Items = {
         this.renderList();
         this.renderEditor();
         this.updateStats();
+        State.save();
         Utils.showAlert('success', 'Item duplicated');
     },
 
