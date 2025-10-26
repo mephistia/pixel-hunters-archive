@@ -84,6 +84,20 @@ function validateAllCatalogs() {
         }
     });
 
+    // Validate breakables
+    state.breakables.forEach((br, i) => {
+        if (!br.id) errors.push(`Breakable ${i}: Missing ID`);
+        if (br.hardness === undefined || br.hardness === null) errors.push(`Breakable ${i}: Missing hardness`);
+        if (br.drop_table) {
+            br.drop_table.forEach((drop, j) => {
+                if (!drop.item_id) errors.push(`Breakable ${i}, Drop ${j}: Missing item_id`);
+                if (!State.getItemById(drop.item_id)) {
+                    errors.push(`Breakable ${i}, Drop ${j}: Item "${drop.item_id}" not found`);
+                }
+            });
+        }
+    });
+
     return errors;
 }
 

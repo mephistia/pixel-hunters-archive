@@ -350,6 +350,7 @@ function handleChangeUsername() {
 }
 
 // Update all module statistics
+// Update all module statistics
 function updateAllStats() {
     console.log('📊 updateAllStats chamado');
     if (window.Items) {
@@ -367,6 +368,10 @@ function updateAllStats() {
     if (window.Makeshift) {
         Makeshift.updateStats();
         console.log('  ✓ Estatísticas de Makeshift atualizadas');
+    }
+    if (window.Breakables) {
+        Breakables.updateStats();
+        console.log('  ✓ Estatísticas de Breakables atualizadas');
     }
 }
 

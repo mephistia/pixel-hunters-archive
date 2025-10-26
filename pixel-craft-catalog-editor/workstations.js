@@ -429,7 +429,7 @@ const Workstations = {
                 target_level: parseInt(document.getElementById(`ws_upgrade_level_${i}`).value) || (i + 1),
                 effect_description: document.getElementById(`ws_upgrade_desc_${i}`).value,
                 boost_types: [],
-                available_recipes_ids: ws.upgrades[i]?.available_recipes_ids || [],  // NOVO: preserva recipes
+                available_recipes_ids: ws.upgrades[i]?.available_recipes_ids || [],
                 upgrade_requirements: []
             };
 

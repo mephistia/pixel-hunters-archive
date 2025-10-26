@@ -237,20 +237,48 @@ const VerseParser = {
     // Helper to extract DropTable -> array of drop entries
     extractDropTable(block) {
         const drops = [];
-        const regex = /DropTable\s*:=\s*array\s*\{([\s\S]*?)\}/i;
-        const match = block.match(regex);
-        if (!match) return drops;
-
-        const arrayContent = match[1];
         
-        // Split into drop_entry blocks
+        // Método 1: Tentar regex greedy primeiro
+        const regexGreedy = /DropTable\s*:=\s*array\s*\{([\s\S]*)\n?\s*\}/i;
+        let match = block.match(regexGreedy);
+        
+        // Método 2: Se falhar, usar contagem de chaves
+        if (!match) {
+            const dropTableIdx = block.search(/DropTable\s*:=\s*array\s*\{/i);
+            if (dropTableIdx === -1) return drops;
+            
+            let startBrace = block.indexOf('{', dropTableIdx);
+            if (startBrace === -1) return drops;
+            
+            let braceCount = 0;
+            let endBrace = startBrace;
+            
+            for (let i = startBrace; i < block.length; i++) {
+                if (block[i] === '{') braceCount++;
+                if (block[i] === '}') {
+                    braceCount--;
+                    if (braceCount === 0) {
+                        endBrace = i;
+                        break;
+                    }
+                }
+            }
+            
+            const arrayContent = block.substring(startBrace + 1, endBrace);
+            match = [null, arrayContent]; // Simular match para código abaixo
+        }
+        
+        if (!match || !match[1]) return drops;
+        
+        const arrayContent = match[1];
         const dropBlocks = this.splitByDefinitions(arrayContent, ['drop_entry']);
-        dropBlocks.forEach(db => {
-        // Tentar múltiplas variações de nomes de campo
-        const item_id = this.extractStringField(db, 'ItemID') || 
-                        this.extractStringField(db, 'ItemId') || 
-                        this.extractStringField(db, 'Item_Id') || 
-                        this.extractStringField(db, 'ItemDefId');            const weight = this.extractIntField(db, 'Weight');
+        
+        console.log(`  📦 Parsing ${dropBlocks.length} drop entries...`);
+        
+        dropBlocks.forEach((db, idx) => {
+            const item_id = this.extractStringField(db, 'ItemID') || 
+                            this.extractStringField(db, 'ItemId');
+            const weight = this.extractIntField(db, 'Weight');
             const min_amount = this.extractIntField(db, 'MinAmount');
             const max_amount = this.extractIntField(db, 'MaxAmount');
 
