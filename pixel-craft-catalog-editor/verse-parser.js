@@ -26,21 +26,56 @@ const VerseParser = {
     parseItemsCatalog(verseCode) {
         const items = [];
         
-        // Find the array definition: AllItems<public> : []item_def = array{
-        const arrayMatch = verseCode.match(/AllItems<public>\s*:\s*\[\]item_def\s*=\s*array\s*\{([\s\S]*)\}/m);
-        if (!arrayMatch) {
-            throw new Error('Could not find AllItems array in Verse file');
+        // Detecta map ou array
+        const mapMatch = verseCode.match(/AllItems<public>\s*:\s*\[string\]\w+\s*=\s*map\s*\{([\s\S]*)\}/m);
+        const arrayMatch = verseCode.match(/AllItems<public>\s*:\s*\[\]\w+\s*=\s*array\s*\{([\s\S]*)\}/m);
+        
+        if (mapMatch) {
+            // MAP FORMAT: "id" => item_def{...}
+            const mapContent = mapMatch[1];
+            const entryRegex = /"([^"]+)"\s*=>\s*(equipment_def|resource_def|consumable_def|placeable_def)\s*\{/g;
+            let match;
+            let lastIndex = 0;
+            
+            while ((match = entryRegex.exec(mapContent)) !== null) {
+                const itemId = match[1];
+                const defType = match[2];
+                const startIndex = match.index + match[0].length;
+                
+                // Find matching closing brace
+                let braceCount = 1;
+                let endIndex = startIndex;
+                
+                for (let i = startIndex; i < mapContent.length; i++) {
+                    if (mapContent[i] === '{') braceCount++;
+                    if (mapContent[i] === '}') {
+                        braceCount--;
+                        if (braceCount === 0) {
+                            endIndex = i;
+                            break;
+                        }
+                    }
+                }
+                
+                const itemBody = mapContent.substring(startIndex, endIndex);
+                const fullBlock = defType + '{' + itemBody + '}';
+                const item = this.parseItemBlock(fullBlock);
+                if (item) items.push(item);
+                
+                lastIndex = endIndex;
+            }
+        } else if (arrayMatch) {
+            // ARRAY FORMAT (old): item_def{...}
+            const arrayContent = arrayMatch[1];
+            const itemBlocks = this.splitByDefinitions(arrayContent, ['equipment_def', 'resource_def', 'consumable_def', 'placeable_def']);
+            
+            itemBlocks.forEach(block => {
+                const item = this.parseItemBlock(block);
+                if (item) items.push(item);
+            });
+        } else {
+            throw new Error('Could not find AllItems in Verse file');
         }
-
-        const arrayContent = arrayMatch[1];
-        
-        // Split by item definitions (equipment_def, resource_def, consumable_def, placeable_def)
-        const itemBlocks = this.splitByDefinitions(arrayContent, ['equipment_def', 'resource_def', 'consumable_def', 'placeable_def']);
-        
-        itemBlocks.forEach(block => {
-            const item = this.parseItemBlock(block);
-            if (item) items.push(item);
-        });
 
         console.log(`✓ Parsed ${items.length} items`);
         return items;
@@ -141,20 +176,53 @@ const VerseParser = {
     parseRecipesCatalog(verseCode) {
         const recipes = [];
         
+        const mapMatch = verseCode.match(/AllRecipes<public>\s*:\s*\[string\]recipe_def\s*=\s*map\s*\{([\s\S]*)\}/m);
         const arrayMatch = verseCode.match(/AllRecipes<public>\s*:\s*\[\]recipe_def\s*=\s*array\s*\{([\s\S]*)\}/m);
-        if (!arrayMatch) {
-            throw new Error('Could not find AllRecipes array in Verse file');
+        
+        if (mapMatch) {
+            // MAP FORMAT
+            const mapContent = mapMatch[1];
+            const entryRegex = /"([^"]+)"\s*=>\s*recipe_def\s*\{/g;
+            let match;
+            
+            while ((match = entryRegex.exec(mapContent)) !== null) {
+                const recipeId = match[1];
+                const startIndex = match.index + match[0].length;
+                
+                // Find matching closing brace
+                let braceCount = 1;
+                let endIndex = startIndex;
+                
+                for (let i = startIndex; i < mapContent.length; i++) {
+                    if (mapContent[i] === '{') braceCount++;
+                    if (mapContent[i] === '}') {
+                        braceCount--;
+                        if (braceCount === 0) {
+                            endIndex = i;
+                            break;
+                        }
+                    }
+                }
+                
+                const recipeBody = mapContent.substring(startIndex, endIndex);
+                const fullBlock = 'recipe_def{' + recipeBody + '}';
+                const recipe = this.parseRecipeBlock(fullBlock);
+                if (recipe) recipes.push(recipe);
+            }
+        } else if (arrayMatch) {
+            // ARRAY FORMAT (old)
+            const arrayContent = arrayMatch[1];
+            const recipeBlocks = this.splitByDefinitions(arrayContent, ['recipe_def']);
+            
+            recipeBlocks.forEach(block => {
+                const recipe = this.parseRecipeBlock(block);
+                if (recipe) recipes.push(recipe);
+            });
+        } else {
+            throw new Error('Could not find AllRecipes in Verse file');
         }
 
-        const arrayContent = arrayMatch[1];
-        const recipeBlocks = this.splitByDefinitions(arrayContent, ['recipe_def']);
-        
-        recipeBlocks.forEach(block => {
-            const recipe = this.parseRecipeBlock(block);
-            if (recipe) recipes.push(recipe);
-        });
-
-        console.log(`✓ Parsed ${recipes.length} recipes`);
+        console.log(`✓ Parsed ${recipes. length} recipes`);
         return recipes;
     },
 
@@ -175,20 +243,53 @@ const VerseParser = {
     parseWorkstationsCatalog(verseCode) {
         const workstations = [];
         
-        const arrayMatch = verseCode.match(/AllWorkstations<public>\s*:\s*\[\]workstation_content_def\s*=\s*array\s*\{([\s\S]*)\}/m);
-        if (!arrayMatch) {
-            throw new Error('Could not find AllWorkstations array in Verse file');
+        const mapMatch = verseCode.match(/AllWorkstations<public>\s*:\s*\[string\]workstation_content_def\s*=\s*map\s*\{([\s\S]*)\}/m);
+        const arrayMatch = verseCode. match(/AllWorkstations<public>\s*:\s*\[\]workstation_content_def\s*=\s*array\s*\{([\s\S]*)\}/m);
+        
+        if (mapMatch) {
+            // MAP FORMAT
+            const mapContent = mapMatch[1];
+            const entryRegex = /"([^"]+)"\s*=>\s*workstation_content_def\s*\{/g;
+            let match;
+            
+            while ((match = entryRegex.exec(mapContent)) !== null) {
+                const wsId = match[1];
+                const startIndex = match.index + match[0].length;
+                
+                // Find matching closing brace
+                let braceCount = 1;
+                let endIndex = startIndex;
+                
+                for (let i = startIndex; i < mapContent.length; i++) {
+                    if (mapContent[i] === '{') braceCount++;
+                    if (mapContent[i] === '}') {
+                        braceCount--;
+                        if (braceCount === 0) {
+                            endIndex = i;
+                            break;
+                        }
+                    }
+                }
+                
+                const wsBody = mapContent. substring(startIndex, endIndex);
+                const fullBlock = 'workstation_content_def{' + wsBody + '}';
+                const ws = this.parseWorkstationBlock(fullBlock);
+                if (ws) workstations.push(ws);
+            }
+        } else if (arrayMatch) {
+            // ARRAY FORMAT (old)
+            const arrayContent = arrayMatch[1];
+            const wsBlocks = this.splitByDefinitions(arrayContent, ['workstation_content_def']);
+            
+            wsBlocks.forEach(block => {
+                const ws = this.parseWorkstationBlock(block);
+                if (ws) workstations.push(ws);
+            });
+        } else {
+            throw new Error('Could not find AllWorkstations in Verse file');
         }
 
-        const arrayContent = arrayMatch[1];
-        const wsBlocks = this.splitByDefinitions(arrayContent, ['workstation_content_def']);
-        
-        wsBlocks.forEach(block => {
-            const ws = this.parseWorkstationBlock(block);
-            if (ws) workstations.push(ws);
-        });
-
-        console.log(`✓ Parsed ${workstations.length} workstations`);
+        console. log(`✓ Parsed ${workstations.length} workstations`);
         return workstations;
     },
 
@@ -205,21 +306,51 @@ const VerseParser = {
     parseBreakablesCatalog(verseCode) {
         const breakables = [];
         
-        // FIX: Remover *? (non-greedy) para capturar TODO o array
+        const mapMatch = verseCode.match(/AllBreakables<public>\s*:\s*\[string\]breakable_resource_def\s*=\s*map\s*\{([\s\S]*)\}/m);
         const arrayMatch = verseCode.match(/AllBreakables<public>\s*:\s*\[\]breakable_resource_def\s*=\s*array\s*\{([\s\S]*)\}/m);
-        if (!arrayMatch) {
-            throw new Error('Could not find AllBreakables array in Verse file');
+        
+        if (mapMatch) {
+            // MAP FORMAT
+            const mapContent = mapMatch[1];
+            const entryRegex = /"([^"]+)"\s*=>\s*breakable_resource_def\s*\{/g;
+            let match;
+            
+            while ((match = entryRegex.exec(mapContent)) !== null) {
+                const brId = match[1];
+                const startIndex = match.index + match[0].length;
+                
+                // Find matching closing brace
+                let braceCount = 1;
+                let endIndex = startIndex;
+                
+                for (let i = startIndex; i < mapContent.length; i++) {
+                    if (mapContent[i] === '{') braceCount++;
+                    if (mapContent[i] === '}') {
+                        braceCount--;
+                        if (braceCount === 0) {
+                            endIndex = i;
+                            break;
+                        }
+                    }
+                }
+                
+                const brBody = mapContent.substring(startIndex, endIndex);
+                const fullBlock = 'breakable_resource_def{' + brBody + '}';
+                const br = this.parseBreakableBlock(fullBlock);
+                if (br) breakables.push(br);
+            }
+        } else if (arrayMatch) {
+            // ARRAY FORMAT (old)
+            const arrayContent = arrayMatch[1];
+            const breakableBlocks = this.splitByDefinitions(arrayContent, ['breakable_resource_def']);
+            
+            breakableBlocks.forEach(block => {
+                const br = this.parseBreakableBlock(block);
+                if (br) breakables.push(br);
+            });
+        } else {
+            throw new Error('Could not find AllBreakables in Verse file');
         }
-
-        const arrayContent = arrayMatch[1];
-        
-        // FIX: Usar a mesma estratégia que funciona para items, recipes, etc.
-        const breakableBlocks = this.splitByDefinitions(arrayContent, ['breakable_resource_def']);
-        
-        breakableBlocks.forEach(block => {
-            const br = this.parseBreakableBlock(block);
-            if (br) breakables.push(br);
-        });
 
         console.log(`✓ Parsed ${breakables.length} breakables`);
         return breakables;

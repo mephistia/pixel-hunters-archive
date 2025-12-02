@@ -131,11 +131,12 @@ using { ItemSystem.ItemData }
 using { ItemSystem.ItemTypes }
 
 ItemsCatalog<public> := module{
-    AllItems<public> : []item_def = array{
+    AllItems<public> : [string]item_def = map{
 `;
 
     state.items.forEach((item, index) => {
-        const isLast = index === state.items.length - 1;
+        const isLast = index === state.items. length - 1;
+        verse += `        "${escapeString(item.id)}" => `;
         verse += generateItemDef(item, isLast);
     });
 
@@ -154,7 +155,7 @@ function generateItemDef(item, isLast) {
 
     // Determine which class to use
     if (type === 'Equipment') {
-        verse += `${indent}equipment_def{\n`;
+        verse += `equipment_def{\n`;
         verse += `${indent}    Id := "${escapeString(item.id)}"\n`;
         verse += `${indent}    Name := "${escapeString(item.name)}"\n`;
         verse += `${indent}    Type := item_type.Equipment\n`;
@@ -169,7 +170,7 @@ function generateItemDef(item, isLast) {
         verse += `${indent}}`;
 
     } else if (type === 'Resource') {
-        verse += `${indent}resource_def{\n`;
+        verse += `resource_def{\n`;
         verse += `${indent}    Id := "${escapeString(item.id)}"\n`;
         verse += `${indent}    Name := "${escapeString(item.name)}"\n`;
         verse += `${indent}    Type := item_type.Resource\n`;
@@ -179,7 +180,7 @@ function generateItemDef(item, isLast) {
         verse += `${indent}}`;
 
     } else if (type === 'Consumable') {
-        verse += `${indent}consumable_def{\n`;
+        verse += `consumable_def{\n`;
         verse += `${indent}    Id := "${escapeString(item.id)}"\n`;
         verse += `${indent}    Name := "${escapeString(item.name)}"\n`;
         verse += `${indent}    Type := item_type.Consumable\n`;
@@ -192,7 +193,7 @@ function generateItemDef(item, isLast) {
         verse += `${indent}}`;
 
     } else if (type === 'Placeable') {
-        verse += `${indent}placeable_def{\n`;
+        verse += `placeable_def{\n`;
         verse += `${indent}    Id := "${escapeString(item.id)}"\n`;
         verse += `${indent}    Name := "${escapeString(item.name)}"\n`;
         verse += `${indent}    Type := item_type.Placeable\n`;
@@ -242,11 +243,12 @@ using { /UnrealEngine.com/Temporary/Diagnostics }
 using { ItemSystem.RecipeData }
 
 RecipesCatalog<public> := module{
-    AllRecipes<public> : []recipe_def = array{
+    AllRecipes<public> : [string]recipe_def = map{
 `;
 
     state.recipes.forEach((recipe, index) => {
         const isLast = index === state.recipes.length - 1;
+        verse += `        "${escapeString(recipe. id)}" => `;
         verse += generateRecipeDef(recipe, isLast);
     });
 
@@ -260,7 +262,7 @@ RecipesCatalog<public> := module{
 // Generate individual recipe definition in Verse
 function generateRecipeDef(recipe, isLast) {
     const indent = '        ';
-    let verse = `${indent}recipe_def{\n`;
+    let verse = `recipe_def{\n`;
     verse += `${indent}    Id := "${escapeString(recipe.id)}"\n`;
     verse += `${indent}    OutputItemDefId := "${escapeString(recipe.output_item_id)}"\n`;
     verse += `${indent}    OutputAmount := ${recipe.output_amount || 1}\n`;
@@ -307,11 +309,12 @@ using { ItemSystem.RecipeData }
 using { ItemSystem.ItemTypes }
 
 WorkstationsCatalog<public> := module{
-    AllWorkstations<public> : []workstation_content_def = array{
+    AllWorkstations<public> : [string]workstation_content_def = map{
 `;
 
     state.workstations.forEach((ws, index) => {
         const isLast = index === state.workstations.length - 1;
+        verse += `        "${escapeString(ws. workstation_def_id)}" => `;
         verse += generateWorkstationDef(ws, isLast);
     });
 
@@ -325,7 +328,7 @@ WorkstationsCatalog<public> := module{
 // Generate individual workstation definition in Verse
 function generateWorkstationDef(ws, isLast) {
     const indent = '        ';
-    let verse = `${indent}workstation_content_def{\n`;
+    let verse = `workstation_content_def{\n`;
     verse += `${indent}    WorkstationDefId := "${escapeString(ws.workstation_def_id)}"\n`;
     verse += `${indent}    AvailableRecipesIDs := `;
 
@@ -469,11 +472,12 @@ using { ItemSystem.DropsConfig }
 
 
 BreakableResourcesCatalog<public> := module{
-    AllBreakables<public> : []breakable_resource_def = array{
+    AllBreakables<public> : [string]breakable_resource_def = map{
 `;
 
     state.breakables.forEach((br, index) => {
-        const isLast = index === state.breakables.length - 1;
+        const isLast = index === state. breakables.length - 1;
+        verse += `        "${escapeString(br.id)}" => `;
         verse += generateBreakableDef(br, isLast);
     });
 
@@ -487,7 +491,7 @@ BreakableResourcesCatalog<public> := module{
 // Generate individual breakable definition in Verse
 function generateBreakableDef(br, isLast) {
     const indent = '        ';
-    let verse = `${indent}breakable_resource_def{\n`;
+    let verse = `breakable_resource_def{\n`;
     verse += `${indent}    Id := "${escapeString(br.id)}"\n`;
     verse += `${indent}    Hardness := ${formatFloat(br.hardness || 0)}\n`;
     verse += `${indent}    RegenSeconds := ${formatFloat(br.regen_seconds || 0)}\n`;
