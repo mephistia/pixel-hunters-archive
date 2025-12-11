@@ -139,11 +139,6 @@ const Items = {
                     <small style="color: var(--text-secondary);">HP value (Armor), Damage multiplier (Weapon), Harvesting Strength (Tool)</small>
                 </div>
 
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="item_is_unbreakable" ${item.is_unbreakable === 'true' || item.is_unbreakable === true ? 'checked' : ''}>
-                    <label for="item_is_unbreakable">Unbreakable</label>
-                </div>
-
                 <div class="form-group">
                     <label>Required Level to Craft</label>
                     <input type="number" id="item_required_level" value="${item.required_level_to_craft || 0}" min="0" step="1">
@@ -250,13 +245,11 @@ const Items = {
         if (item.type === 'Equipment') {
             const equipSlotField = document.getElementById('item_equip_slot');
             const baseStatField = document.getElementById('item_base_stat');
-            const unbreakableField = document.getElementById('item_is_unbreakable');
             const requiredLevelField = document.getElementById('item_required_level');
             const expAfterCraftField = document.getElementById('item_exp_after_craft');
             
             if (equipSlotField) item.equip_slot = equipSlotField.value;
             if (baseStatField) item.base_stat = parseFloat(baseStatField.value) || 0;
-            if (unbreakableField) item.is_unbreakable = unbreakableField.checked ? 'true' : 'false';
             if (requiredLevelField) item.required_level_to_craft = parseInt(requiredLevelField.value) || 0;
             if (expAfterCraftField) item.exp_after_craft = parseInt(expAfterCraftField.value) || 0;
             
@@ -272,7 +265,6 @@ const Items = {
             // Clear type-specific fields from other types
             delete item.equip_slot;
             delete item.base_stat;
-            delete item.is_unbreakable;
             delete item.effect_type;
             delete item.effect_amount;
             delete item.effect_duration;
@@ -280,7 +272,6 @@ const Items = {
             // Resource - clear all type-specific fields
             delete item.equip_slot;
             delete item.base_stat;
-            delete item.is_unbreakable;
             delete item.effect_type;
             delete item.effect_amount;
             delete item.effect_duration;
@@ -413,7 +404,6 @@ const Items = {
         if (item.type === 'Equipment') {
             item.equip_slot = document.getElementById('item_equip_slot').value;
             item.base_stat = parseFloat(document.getElementById('item_base_stat').value);
-            item.is_unbreakable = document.getElementById('item_is_unbreakable').checked ? 'true' : 'false';
             item.required_level_to_craft = parseInt(document.getElementById('item_required_level').value) || 0; 
             item.exp_after_craft = parseInt(document.getElementById('item_exp_after_craft').value) || 0;
             
@@ -430,7 +420,6 @@ const Items = {
             // Clear other type-specific fields
             delete item.equip_slot;
             delete item.base_stat;
-            delete item.is_unbreakable;
             delete item.behavior_type;
         } else if (item.type === 'Placeable') {
             item.behavior_type = document.getElementById('item_behavior_type').value;
@@ -438,7 +427,6 @@ const Items = {
             // Clear other type-specific fields
             delete item.equip_slot;
             delete item.base_stat;
-            delete item.is_unbreakable;
             delete item.effect_type;
             delete item.effect_amount;
             delete item.effect_duration;
@@ -446,7 +434,6 @@ const Items = {
             // Resource - clear all type-specific fields
             delete item.equip_slot;
             delete item.base_stat;
-            delete item.is_unbreakable;
             delete item.effect_type;
             delete item.effect_amount;
             delete item.effect_duration;

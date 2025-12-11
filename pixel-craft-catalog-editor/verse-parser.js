@@ -157,7 +157,6 @@ const VerseParser = {
         // Type-specific fields
         if (item.type === 'Equipment') {
             item.equip_slot = this.extractEnumField(block, 'EquipSlot');
-            item.is_unbreakable = this.extractBoolField(block, 'IsUnbreakable') ? 'true' : 'false';
             item.required_level_to_craft = this.extractIntField(block, 'RequiredLevelToCraft');
             item.exp_after_craft = this.extractIntField(block, 'ExpAfterCraft');
             item.base_stat = this.extractFloatField(block, 'BaseStat');

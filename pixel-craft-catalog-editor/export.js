@@ -163,7 +163,6 @@ function generateItemDef(item, isLast) {
         verse += `${indent}    MaxStack := 1\n`;
         verse += `${indent}    Metadata := ${generateMetadata(item.metadata || {})}\n`;
         verse += `${indent}    EquipSlot := equip_slot.${item.equip_slot || 'Weapon'}\n`;
-        verse += `${indent}    IsUnbreakable := ${item.is_unbreakable === 'true' || item.is_unbreakable === true ? 'true' : 'false'}\n`;
         verse += `${indent}    RequiredLevelToCraft := ${item.required_level_to_craft || 0}\n`;
         verse += `${indent}    ExpAfterCraft := ${item.exp_after_craft || 0}\n`;
         verse += `${indent}    BaseStat := ${formatFloat(item.base_stat || 0)}\n`;
